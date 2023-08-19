@@ -1,6 +1,27 @@
 import csv
 
 
+class UserException(Exception):
+    pass
+
+
+class RangeError(UserException):
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return f'Значение {self.value} выходит за пределы диапозона'
+
+
+class UserNameError(UserException):
+    def __init__(self, name):
+        self.name = name
+
+    def __str__(self):
+        return f'Имя пользователя {self.name} должно начинаться с заглавной буквы.\n' \
+                f'И состоять только из букв.'
+
+
 class StringNames:
 
     def __set_name__(self, owner, name):
@@ -15,9 +36,9 @@ class StringNames:
 
     def validate(self, value):
         if not value.isalpha():
-            raise TypeError(f'Значение {value} должно состоять из букв')
+            raise UserNameError(value)
         if not value[0].isupper():
-            raise ValueError(f'Значение {value} должно начинаться с заглавной буквы')
+            raise UserNameError(value)
 
 
 class Range:
@@ -37,11 +58,11 @@ class Range:
 
     def validate(self, value):
         if not isinstance(value, int):
-            raise TypeError(f'Значение {value} должно быть целым числом')
+            raise RangeError(value)
         if self.min_value is not None and value < self.min_value:
-            raise ValueError(f'Значение {value} должно быть больше или равно {self.min_value}')
+            raise RangeError(value)
         if self.max_value is not None and value > self.max_value:
-            raise ValueError(f'Значение {value} должно быть меньше или равно {self.max_value}')
+            raise RangeError(value)
 
 
 class Student:
@@ -53,9 +74,13 @@ class Student:
     estimation_average = 0
 
     def __init__(self, firstname, patronymic, lastname):
-        self.firstname = firstname
-        self.patronymic = patronymic
-        self.lastname = lastname
+        try:
+            self.firstname = firstname
+            self.patronymic = patronymic
+            self.lastname = lastname
+        except UserNameError as u:
+            print(u)
+            exit()
         self.discipline = self.discipline_dict('discipline.csv')
 
     def __repr__(self):
@@ -72,12 +97,20 @@ class Student:
         return discipline
 
     def add_estimation(self, discipline, rating):
-        self.estimation = rating
+        try:
+            self.estimation = rating
+        except RangeError as r:
+            print(r)
+            return
         self.discipline[discipline]['estimation'][0].append(self.estimation)
         self.average()
 
     def add_test(self, discipline, rating):
-        self.test = rating
+        try:
+            self.test = rating
+        except RangeError as r:
+            print(r)
+            return
         self.discipline[discipline]['test'][0].append(self.test)
         self.average()
 
@@ -104,11 +137,11 @@ class Student:
 
 if __name__ == '__main__':
     student = Student('Владимир', 'Петрович', 'Бехштедт')
-    student.add_estimation('физика', 4)
+    student.add_estimation('физика', 400)
     student.add_estimation('физика', 3)
     student.add_estimation('физика', 2)
     student.add_test('физика', 2)
-    student.add_test('физика', 100)
+    student.add_test('физика', 1000)
     student.add_test('физика', 55)
     print(student.discipline)
     print(student.estimation_average)
