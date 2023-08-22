@@ -1,32 +1,45 @@
-'''
-    Напишите программу, которая получает целое число и возвращает его шестнадцатеричное строковое представление.
-    Функцию hex используйте для проверки своего результата.
-'''
+import unittest
 
-num = int(input('Введите число: '))
-result1 = ''
-result2 = hex(num)
 
-while num != 0:
-    a = num % 16
-    if a >= 10:
-        match a:
-            case 10:
-                result1 = 'a' + result1
-            case 11:
-                result1 = 'b' + result1
-            case 12:
-                result1 = 'c' + result1
-            case 13:
-                result1 = 'd' + result1
-            case 14:
-                result1 = 'e' + result1
-            case 15:
-                result1 = 'f' + result1
-    else:
-        result1 = str(a) + result1
-    num //= 16
-result1 = '0x' + result1
+class SquareEquation:
+    def __init__(self, a, b, c):
+        self.a = a
+        self.b = b
+        self.c = c
+        self.x1 = None
+        self.x2 = None
+        self.discriminant = None
+        self.text = ""
 
-print(result1)
-print(result1 == result2)
+    def roots(self):
+        self.x1 = None
+        self.x2 = None
+
+        if self.a == 0:
+            if self.b == 0:
+                if self.c == 0:
+                    self.text = "уравнений имеет бесконечное число корней"
+                else:
+                    self.text = "ошибка записи уравнения"
+            else:
+                self.x1 = self.x2 = -self.c / self.b
+
+        else:
+            self.discriminant = self.b ** 2 - 4 * self.a * self.c
+            if self.discriminant < 0:
+                pass
+            elif self.discriminant == 0:
+                self.x1 = self.x2 = -self.b / (2 * self.a)
+
+            else:
+                self.x1 = (-self.b + self.discriminant ** 0.5) / (2 * self.a)
+                self.x2 = (-self.b - self.discriminant ** 0.5) / (2 * self.a)
+
+
+        return  self.x1, self.x2
+
+class TestCaseNumbers(unittest.TestCase):
+    def test_2(self):
+        self.assertEqual(SquareEquation(1, -4, 4).roots(), (2 , 2), msg='Test failed')
+    def test_3(self):
+        self.assertEqual(SquareEquation(0, 0, 0).roots(), (None , None), msg='Test failed')
